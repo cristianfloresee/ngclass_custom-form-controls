@@ -12,7 +12,6 @@ import { DateTimeModel } from './date-time.model';
 @Component({
     selector: 'app-date-time-picker',
     templateUrl: './date-time-picker.component.html',
-    styleUrls: ['./date-time-picker.component.scss'],
     providers: [
         DatePipe,
         {
@@ -23,24 +22,25 @@ import { DateTimeModel } from './date-time.model';
     ]
 })
 export class DateTimePickerComponent implements ControlValueAccessor, OnInit, AfterViewInit {
-    //For DatePicker
+    //Pipe Format de Angular: 02/09/2017 23:02
+    @Input() inputDatetimeFormat = 'dd/MM/yyyy HH:mm';
+
+    //For DatePicker?????
     @Input() dateString: string; //[ngModel]
 
-    //Pipe Format: 02/09/2017 23:02
-    @Input() inputDatetimeFormat = 'dd/MM/yyyy HH:mm';
-    
-
-    //Propiedades Input del TimePicker
+    //Propiedades Input del TimePicker???
     @Input() hourStep = 0;
     @Input() minuteStep = 0;
     @Input() secondStep = 0;
     @Input() seconds = false;
 
-    @Input() disabled = false; //[disabled] for DatePicker and TimePicker
+    //Para deshabilitar el DatePicker/TimePicker
+    @Input() disabled = true;
 
     @ViewChild(NgbDatepicker) private dp: NgbDatepicker;
     @ViewChild(NgbPopover) private popover: NgbPopover;
 
+    //Para saber cuando mostrar el DatePicker/TimePicker
     private showTimePickerToggle = false;
 
     private datetime: DateTimeModel = new DateTimeModel();
@@ -49,33 +49,43 @@ export class DateTimePickerComponent implements ControlValueAccessor, OnInit, Af
     private ngControl: NgControl;
 
     constructor(
-        private config: NgbPopoverConfig,
+        config: NgbPopoverConfig,
         private inj: Injector
     ) {
         //Popover Config
+        // + outside: cerrar el popover al hacer click afuera
+        // + placement: posición del popover
         config.autoClose = 'outside';
         config.placement = 'auto';
     }
 
+    // ----------------------------------------
+    // Hooks
+    // ----------------------------------------
     ngOnInit(): void {
         this.ngControl = this.inj.get(NgControl);
     }
 
     ngAfterViewInit(): void {
-        //Popover
-        this.popover.hidden.subscribe($event => {
+        //Cuando el Popover se oculta cambia el estado de showTimePickerToggle
+        this.popover.hidden.subscribe(() => {
             this.showTimePickerToggle = false;
         });
     }
 
     //Función a llamar cuando el input cambia.
     //onTouched: () => void = noop;
-    onTouched = () => {};
+    onTouched = () => { };
     //CVA: Función a llamar cuando el input es tocado.
     //onChange: (value: any) => void = noop;
-    onChange = (_) => {};
+    // Almacena la función que es registrada por registerOnChange
+    // Se llama en el evento (change)
+    onChange = (_) => { };
 
-    //Necesaria en ControlValueAccesor
+    // ----------------------------------------
+    // ControlValueAccessor
+    // ----------------------------------------
+
     // Escribe un valor en el input
     writeValue(newModel: string) {
         console.log("newModel: ", newModel);
@@ -89,35 +99,39 @@ export class DateTimePickerComponent implements ControlValueAccessor, OnInit, Af
         }
     }
 
-    //Necesaria en ControlValueAccesor
     // Para indicar a Angular cuando cambia el valor del Input
+    // + Registra una función para el (change)?
     registerOnChange(fn: any): void {
         this.onChange = fn;
     }
-    //Necesaria en ControlValueAccesor
+
     // Para indicar a Angular cuando se toca en Input
+    // + Registra una función para el (touched)?
     registerOnTouched(fn: any): void {
         this.onTouched = fn;
     }
-    //Necesaria en ControlValueAccesor
-    // Para desactivar el input
+
+    // Para deshabilitar el input
     setDisabledState?(isDisabled: boolean): void {
         this.disabled = isDisabled;
     }
+
+    // ----------------------------------------
+    // 
+    // ----------------------------------------
 
     toggleDateTimeState($event) {
         this.showTimePickerToggle = !this.showTimePickerToggle;
         $event.stopPropagation();
     }
 
-    
+
 
 
     onDateChange($event) { //: string | NgbDateStruct 
         //console.log('date change: ', typeof($event.day));      
         if ($event.year) {
-            $event = `${$event.year}-${$event.month < 10 ? '0' + $event.month: $event.month}-${$event.day < 10 ? '0' + $event.day: $event.day}`
-            //console.log("event: ", $event);
+            $event = `${$event.year}-${$event.month < 10 ? ('0' + $event.month) : $event.month}-${$event.day < 10 ? ('0' + $event.day) : $event.day}`
         }
 
         console.log("intento2");
@@ -136,7 +150,7 @@ export class DateTimePickerComponent implements ControlValueAccessor, OnInit, Af
         this.datetime.day = date.day;
 
         this.dp.navigateTo({ year: this.datetime.year, month: this.datetime.month });
-        
+
         this.setDateStringModel();
     }
 
