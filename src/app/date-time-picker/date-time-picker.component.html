@@ -32,7 +32,8 @@
             <!-- Time Picker Content -->
             <div class="mt-auto">
                 <ngb-timepicker #tp name="timepicker" [ngModel]="datetime" (ngModelChange)="onTimeChange($event)"
-                    [seconds]="seconds" [hourStep]="hourStep" [minuteStep]="minuteStep" [secondStep]="secondStep">
+                    [seconds]="seconds"> 
+                    <!-- [hourStep]="hourStep" [minuteStep]="minuteStep" [secondStep]="secondStep" -->
                 </ngb-timepicker>
             </div>
         </div>
